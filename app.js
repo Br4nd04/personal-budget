@@ -1,45 +1,63 @@
-const actividades = [];
+let movimientos = [];
 
-function registrarActividad() {
-    console.log("Registro de Actividades");
-    console.log("-----------------------");
-    
-    const nombre = prompt("Nombre de la actividad:");
-    const duracion = parseInt(prompt("Duración (minutos):"), 10);
-    
-    if (!nombre || duracion <= 0 || isNaN(duracion)) {
-        console.log("Error: Nombre inválido o duración incorrecta.");
-        return;
+function registrarMovimiento() {
+    console.log("Registro de Gastos\n-----------------------");
+    while (true) {
+        let nombre = prompt("Nombre del movimiento:");
+        if (!nombre.trim()) {
+            console.log("Error: El nombre no puede estar vacío.");
+            continue;
+        }
+
+        let tipo = prompt("Tipo (Ingreso/Egreso):").toLowerCase();
+        if (tipo !== "ingreso" && tipo !== "egreso") {
+            console.log("Error: El tipo debe ser 'Ingreso' o 'Egreso'.");
+            continue;
+        }
+
+        let monto = parseFloat(prompt("Monto:"));
+        if (isNaN(monto) || monto <= 0) {
+            console.log("Error: El monto debe ser un número mayor que cero.");
+            continue;
+        }
+
+        movimientos.push({ nombre, tipo, monto });
+        console.log(`\nNombre del movimiento: ${nombre}`);
+        console.log(`Tipo: ${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`);
+        console.log(`Monto: $${monto.toFixed(2)}\n`);
+
+        let continuar = prompt("¿Registrar otro movimiento? (si/no):").toLowerCase();
+        if (continuar !== "si") break;
     }
-    
-    actividades.push({ nombre, duracion});
-    console.log(`Actividad registrada: ${nombre}`)
-    console.log(`Duración (minutos): ${duracion}`)
 }
 
-function calcularTiempoTotal() {
-    let total = 0;
-    for (const actividad of actividades) {
-        total += actividad.duracion;
+function calcularTotalSaldo() {
+    let saldo = 0;
+    for (let mov of movimientos) {
+        saldo += mov.tipo === "ingreso" ? mov.monto : -mov.monto;
     }
-    return total;
+    return saldo;
 }
 
 function mostrarResumen() {
-    console.log("\nResumen Final");
-    console.log("-----------------------");
-    console.log(`Total de actividades: ${actividades.length}`);
-    console.log(`Tiempo total: ${calcularTiempoTotal()} minutos`);
+    console.log("\nResumen Final\n-----------------------");
+    console.log(`Total de movimientos registrados: ${movimientos.length}`);
+    console.log(`Saldo total: $${calcularTotalSaldo().toFixed(2)}`);
     
-}
-
-function iniciarRegistro() {
-    let continuar = true;
-    while (continuar) {
-        registrarActividad();
-        continuar = confirm("¿Registrar otra actividad?");
+    let resumenPorTipo = { ingreso: 0, egreso: 0 };
+    for (let mov of movimientos) {
+        resumenPorTipo[mov.tipo] += mov.monto;
     }
-    mostrarResumen();
+    
+    console.log("\nDesglose por tipo:");
+    if (resumenPorTipo.egreso > 0) {
+        console.log(`- Egresos: $${resumenPorTipo.egreso.toFixed(2)}`);
+    }
+    if (resumenPorTipo.ingreso > 0) {
+        console.log(`- Ingresos: $${resumenPorTipo.ingreso.toFixed(2)}`);
+    }
 }
 
-iniciarRegistro();
+// Ejecución del programa
+registrarMovimiento();
+mostrarResumen();
